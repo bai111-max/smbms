@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smbms.mapper.UserMapper">
+    <!--Integer getUserCount(); 查询总记录数-->
+    <select id="getUserCount" resultType="int">
+        select count(*)
+            from smbms_user
+                <where>
+                    <if test="queryname!=null and queryname!=''">
+                       and userName like CONCAT('%',#{queryname},'%')
+                    </if>
+                    <if test="queryUserRole!=null and queryUserRole != 0">
+                        and userRole = #{queryUserRole}
+                    </if>
+                </where>
+
+    </select>
+    <!--List<SmbmsUser> findUserPage(int startIndex, Integer pageSize); 查询分页的结果集-->
+    <select id="findUserPage" resultType="com.smbms.pojo.SmbmsUser">
+        select  u.*,r.roleName userRoleName
+            from smbms_user u
+                inner join smbms_role r
+                    on r.id = u.userRole
+                <trim prefix="where" prefixOverrides="and" >
+
+                    <if test="queryname!=null and queryname!=''">
+                        and userName like CONCAT('%',#{queryname},'%')
+                    </if>
+                    <if test="queryUserRole!=null and queryUserRole != 0">
+                        and userRole = #{queryUserRole}
+                    </if>
+                </trim>
+                    limit #{startIndex},#{pageSize}
+    </select>
+
+    <!--List<SmbmsRole> findRoleList(); 查询角色列表-->
+    <select id="findRoleList" resultType="com.smbms.pojo.SmbmsRole">
+        select * from smbms_role
+    </select>
+    <!--boolean adduserSave(SmbmsUser user);-->
+    <insert id="adduserSave" parameterType="SmbmsUser">
+        insert into smbms_user(userCode,userName,userPassword,gender,birthday,phone,address,userRole,createBy,creationDatem,modifyBy,modifyDate,idPicPath)
+            values(#{userCode},#{userName},#{userPassword},#{gender},#{birthday},#{phone},#{address},#{userRole},#{createdBy},#{creationDate},#{modifyBy},#{modifyDate},#{idPicPath})
+    </insert>
+    <!--SmbmsUser finduserByUserCode(String userCode);-->
+    <select id="finduserByUserCode" parameterType="String" resultType="com.smbms.pojo.SmbmsUser">
+        select * from smbms_user where userCode=#{userCode}
+    </select>
+    <!--SmbmsUser finUserByid(Integer id);-->
+    <select id="finUserByid" resultType="com.smbms.pojo.SmbmsUser">
+        select * from smbms_user where id=#{id}
+    </select>
+<!--  boolean findchangepassword(String newpassword, long id);-->
+    <update id="findchangepassword">
+        update smbms_user set userPassword=#{newpassword} where id=#{id}
+    </update>
+</mapper>
